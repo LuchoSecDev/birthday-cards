@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Los {{...}} los rellena preparar-sitio.ps1 con personas/<persona>.json.
+     Van en el HTML (no en JS) porque WhatsApp y similares no ejecutan JavaScript. -->
+<title>{{TITULO}}</title>
+<meta name="description" content="{{DESCRIPCION}}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{URL}}/">
+<meta property="og:title" content="{{TITULO}}">
+<meta property="og:description" content="{{DESCRIPCION}}">
+<meta property="og:image" content="{{URL}}/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{IMAGEN_ALT}}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=Gochi+Hand&family=Shrikhand&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="pastel.css">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main class="stage">
+  <div class="card" id="card">
+    <button class="cover" id="cover" type="button" aria-label="Abrir la tarjeta">
+      <span class="cover-face cover-front">
+        <span class="cover-inner">
+          <span class="cover-title">¡Feliz cumpleaños!</span>
+          <span class="cover-to" id="coverTo"></span>
+          <span class="seal" aria-hidden="true">Abrir</span>
+        </span>
+      </span>
+      <span class="cover-face cover-back" aria-hidden="true"></span>
+    </button>
+
+    <section class="inside" id="inside" aria-live="polite">
+      <p class="eyebrow">Pide un deseo y sopla</p>
+
+      <div class="cake-wrap">
+        <div class="candles" id="candles"></div>
+        <svg class="cake" id="cake" viewBox="0 0 260 150" aria-hidden="true"></svg>
+      </div>
+
+      <p class="wish" id="wish">Toca cada vela para apagarla.</p>
+
+      <hr class="rule">
+
+      <article class="message">
+        <h2 id="greeting"></h2>
+        <div id="body" class="message"></div>
+        <p class="signature" id="signature"></p>
+      </article>
+
+      <p class="eyebrow">Toca la tarjeta para cerrarla</p>
+    </section>
+  </div>
+
+  <div class="actions" id="actions" hidden>
+    <button class="btn primary" id="blowAll" type="button">Soplar todas</button>
+  </div>
+</main>
+
+<!-- Orden importante: datos.js define window.TARJETA y pastel.js define drawCake(),
+     que tarjeta.js usa. -->
+<script src="datos.js"></script>
+<script src="pastel.js"></script>
+<script src="tarjeta.js"></script>
+</body>
+</html>

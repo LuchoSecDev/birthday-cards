@@ -1,0 +1,12 @@
+/* Colores del pastel que dibuja pastel.js (lo comparten la tarjeta y la vista previa). */
+.cake .sponge-top    { fill: var(--coral); }
+.cake .sponge-bottom { fill: var(--coral-deep); }
+.cake .frosting      { fill: var(--paper); }
+.cake .frosting-pink { fill: #ffc9c0; }
+.cake .shade         { fill: var(--ink); opacity: 0.14; }
+.cake .shine         { fill: var(--paper); opacity: 0.16; }
+.cake .plate         { fill: #d9cfd6; }
+.cake .plate-rim     { fill: var(--paper); }
+.cake .s1 { fill: var(--marigold); }
+.cake .s2 { fill: var(--mint); }
+.cake .s3 { fill: var(--paper); }

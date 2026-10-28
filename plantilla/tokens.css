@@ -1,0 +1,21 @@
+/* Colores y tipografías de todas las tarjetas. Lo usan la tarjeta (index.html)
+   y la imagen de vista previa (og.html): cambiar un color aquí cambia ambas.
+   Diseño de un solo tema a propósito: siempre "de noche", para que las velas brillen. */
+:root {
+  --night: #12343b;
+  --night-2: #1d4c55;
+  --paper: #fff4f1;
+  --ink: #2b2030;
+  --ink-soft: #6a5866;
+  --coral: #ef6a5b;
+  --coral-deep: #c9493c;
+  --marigold: #f6b42c;
+  --mint: #7fd3c3;
+  --flame: #ffd36b;
+
+  --font-display: "Shrikhand", "Georgia", serif;
+  --font-body: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-hand: "Gochi Hand", "Comic Sans MS", cursive;
+
+  color-scheme: dark;
+}

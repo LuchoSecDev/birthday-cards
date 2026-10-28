@@ -1,0 +1,15 @@
+{
+  "nombre": "Ana",
+  "saludo": "¡Feliz cumpleaños, Ana!",
+  "mensaje": [
+    "Primer párrafo del mensaje.",
+    "Segundo párrafo (opcional): agrega o quita elementos de esta lista."
+  ],
+  "firma": "Con cariño, Tu nombre",
+  "velas": 5,
+  "url": "https://ana.tudominio.com",
+  "previa": {
+    "titulo": "¡Feliz cumpleaños, Ana!",
+    "descripcion": "Ábrela, pide un deseo y sopla las velas."
+  }
+}

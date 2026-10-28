@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Plantilla de la imagen de vista previa (og.png, 1200x630) que muestran WhatsApp,
+     Telegram, etc. al compartir el enlace. No se publica: preparar-sitio.ps1 la copia
+     junto a datos.js, la fotografía con Chrome sin ventana y la borra.
+     Usa los mismos colores (tokens.css) y el mismo pastel (pastel.js) que la tarjeta. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Gochi+Hand&family=Shrikhand&display=block">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="pastel.css">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(circle, var(--marigold) 3px, transparent 3.5px) 0 0 / 44px 44px,
+      radial-gradient(circle, var(--mint) 2.5px, transparent 3px) 22px 22px / 44px 44px,
+      var(--coral);
+    box-shadow: inset 0 0 0 22px var(--coral), inset 0 0 0 26px var(--paper);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 430px;
+    align-items: center;
+    gap: 24px;
+    padding: 0 64px;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+  }
+  .text {
+    background: var(--coral);
+    padding: 34px 36px;
+    border-radius: 8px;
+    color: var(--paper);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 80px;
+    line-height: 1.02;
+    margin: 0;
+    text-shadow: 5px 5px 0 var(--coral-deep);
+  }
+  .to {
+    font-family: var(--font-hand);
+    font-size: 54px;
+    margin: 18px 0 0;
+  }
+  .hint {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 12px 24px;
+    border-radius: 999px;
+    background: var(--marigold);
+    color: var(--ink);
+    font-size: 26px;
+    font-weight: 600;
+  }
+  .plate-bg {
+    background: var(--paper);
+    border-radius: 50%;
+    width: 430px;
+    height: 430px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 18px 0 rgba(0, 0, 0, 0.12);
+  }
+  .cake { width: 340px; height: auto; }
+  /* velas dibujadas en SVG (en la tarjeta son botones HTML) */
+  .cake .wax    { fill: url(#stripes); }
+  .cake .wick   { fill: var(--ink); }
+  .cake .flame  { fill: var(--marigold); }
+  .cake .core   { fill: #fff; }
+</style>
+</head>
+<body>
+  <div class="text">
+    <h1>¡Feliz cumpleaños!</h1>
+    <p class="to" id="to"></p>
+    <span class="hint">Ábrela y sopla las velas</span>
+  </div>
+  <div class="plate-bg">
+    <!-- viewBox con 70 unidades extra arriba para las velas -->
+    <svg class="cake" id="cake" viewBox="0 -70 260 220"></svg>
+  </div>
+
+<script src="datos.js"></script>
+<script src="pastel.js"></script>
+<script>
+  const datos = window.TARJETA;
+  document.getElementById("to").textContent = "para " + datos.nombre;
+
+  const svg = document.getElementById("cake");
+  drawCake(svg);
+
+  const NS = "http://www.w3.org/2000/svg";
+  const css = getComputedStyle(document.documentElement);
+  const color = (v) => css.getPropertyValue(v).trim();
+  const el = (tag, attrs, parent = svg) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    parent.appendChild(n);
+    return n;
+  };
+
+  const defs = el("defs", {});
+  const glow = el("radialGradient", { id: "glow" }, defs);
+  el("stop", { offset: "0", "stop-color": color("--flame"), "stop-opacity": 0.7 }, glow);
+  el("stop", { offset: "1", "stop-color": color("--flame"), "stop-opacity": 0 }, glow);
+  const stripes = el("pattern", { id: "stripes", width: 11, height: 11, patternUnits: "userSpaceOnUse", patternTransform: "rotate(-20)" }, defs);
+  el("rect", { width: 11, height: 11, fill: color("--paper") }, stripes);
+  el("rect", { width: 6, height: 11, fill: color("--mint") }, stripes);
+
+  // Mismo número de velas que la tarjeta, repartidas sobre el piso de arriba (ancho 152)
+  const n = datos.velas;
+  const gap = Math.min(24, 130 / Math.max(n - 1, 1));
+  for (let i = 0; i < n; i++) {
+    const x = 130 + (i - (n - 1) / 2) * gap;
+    el("rect", { x: x - 5, y: -36, width: 10, height: 38, rx: 2, class: "wax" });
+    el("rect", { x: x - 1, y: -42, width: 2, height: 6, class: "wick" });
+    el("circle", { cx: x, cy: -52, r: 16, fill: "url(#glow)" });
+    el("path", { d: `M${x} -64 C ${x + 7} -54, ${x + 6} -44, ${x} -43 C ${x - 6} -44, ${x - 7} -54, ${x} -64 Z`, class: "flame" });
+    el("ellipse", { cx: x, cy: -49, rx: 2.5, ry: 4, class: "core" });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Salida generada por preparar-sitio.ps1 (se vuelve a crear en cada ejecución)
+sitio/
+
+# Las tarjetas reales tienen nombres y mensajes personales: se quedan en tu equipo.
+# Al repositorio solo va el ejemplo, para que cualquiera pueda usar la plantilla.
+personas/*
+!personas/ejemplo.json
+
+# Configuración local de Claude Code (servidor de pruebas)
+.claude/
