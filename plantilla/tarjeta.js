@@ -66,7 +66,7 @@ function blowOut(candle) {
     wish.textContent = "¡Que se cumpla tu deseo!";
     wish.classList.add("done");
     // Final elegido en el JSON: "fuegos" (cielo estrellado y fuegos) o confeti (por defecto)
-    if (TARJETA.final === "fuegos") Fuegos.start();
+    if (TARJETA.final === "fuegos") Fuegos.start({ onBurst: playBoom });
     else launchConfetti();
     vibrate();
     cakeEl.classList.remove("lit");
@@ -179,6 +179,76 @@ function playSong() {
     t += len;
   }
   songTimer = setTimeout(stopSong, (t - audioCtx.currentTime) * 1000);
+}
+
+// Sonido de los estallidos de los fuegos (también sintetizado). Mientras la canción
+// suena (master != null) van de fondo, más bajos que ella; cuando termina, suenan fuerte.
+// Las notas de la canción llegan a 0.22, así que 0.07 queda claramente por debajo.
+const BOOM_VOL_CON_CANCION = 0.07;
+const BOOM_VOL_SOLO = 0.45;
+let noiseBuffer = null; // 1 s de ruido blanco, se crea una vez y se reutiliza
+
+function playBoom(posX) {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) {
+    return; // sin Web Audio: fuegos sin sonido
+  }
+  if (!noiseBuffer) {
+    noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  }
+  const vol = (master ? BOOM_VOL_CON_CANCION : BOOM_VOL_SOLO) * (0.75 + Math.random() * 0.5);
+  const t = audioCtx.currentTime;
+
+  // Se oye a la izquierda o a la derecha según dónde estalla
+  const out = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : audioCtx.createGain();
+  if (out.pan) out.pan.value = (posX * 2 - 1) * 0.6;
+  out.connect(audioCtx.destination);
+
+  // 1. Golpe grave: tono que cae de 110 a 40 Hz
+  const thump = audioCtx.createOscillator();
+  const thumpGain = audioCtx.createGain();
+  thump.frequency.setValueAtTime(110, t);
+  thump.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  thumpGain.gain.setValueAtTime(vol, t);
+  thumpGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+  thump.connect(thumpGain).connect(out);
+  thump.start(t);
+  thump.stop(t + 0.5);
+
+  // 2. Estruendo: ruido que se oscurece y se apaga
+  const boom = audioCtx.createBufferSource();
+  boom.buffer = noiseBuffer;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(2200, t);
+  filter.frequency.exponentialRampToValueAtTime(250, t + 0.9);
+  const boomGain = audioCtx.createGain();
+  boomGain.gain.setValueAtTime(0, t);
+  boomGain.gain.linearRampToValueAtTime(vol, t + 0.01);
+  boomGain.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+  boom.connect(filter).connect(boomGain).connect(out);
+  boom.start(t);
+  boom.stop(t + 1.1);
+
+  // 3. A veces, chisporroteo: chasquidos cortos y agudos que llegan después
+  if (Math.random() < 0.5) {
+    for (let i = 0; i < 10; i++) {
+      const at = t + 0.3 + Math.random() * 0.7;
+      const crackle = audioCtx.createBufferSource();
+      crackle.buffer = noiseBuffer;
+      const high = audioCtx.createBiquadFilter();
+      high.type = "highpass";
+      high.frequency.value = 3000;
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(vol * 0.5, at);
+      g.gain.exponentialRampToValueAtTime(0.001, at + 0.04);
+      crackle.connect(high).connect(g).connect(out);
+      crackle.start(at, Math.random() * 0.9, 0.05);
+    }
+  }
 }
 
 // Confeti

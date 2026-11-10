@@ -4,7 +4,9 @@
 // - El cielo (#nightsky + canvas #stars) va DETRÁS de la tarjeta.
 // - Los fuegos se dibujan en #fireworks, DELANTE de la tarjeta (sin bloquear los toques),
 //   para que también se vean en el celular, donde la tarjeta ocupa casi toda la pantalla.
-// Uso: Fuegos.start() al apagar la última vela, Fuegos.stop() al cerrar la tarjeta.
+// Uso: Fuegos.start({ onBurst }) al apagar la última vela, Fuegos.stop() al cerrar la tarjeta.
+// onBurst(posX) se llama en cada estallido (posX de 0 = izquierda a 1 = derecha); el sonido
+// lo pone tarjeta.js, que es quien maneja el audio y sabe si la canción sigue sonando.
 
 const Fuegos = (() => {
   const SKY_FADE_MS = 1400;   // igual que la transición de #nightsky en estilos.css
@@ -29,6 +31,7 @@ const Fuegos = (() => {
   let stars = [];
   let rockets = [];
   let sparks = [];
+  let onBurst = null;
 
   function sizeCanvas(canvas, ctx) {
     const dpr = window.devicePixelRatio || 1;
@@ -76,6 +79,7 @@ const Fuegos = (() => {
   }
 
   function explode(rocket) {
+    if (onBurst) onBurst(rocket.x / innerWidth);
     const count = 70 + Math.floor(Math.random() * 40);
     const power = 2.2 + Math.random() * 2.3;
     // segundo color para que cada estallido tenga dos tonos
@@ -164,9 +168,10 @@ const Fuegos = (() => {
   addEventListener("resize", resize);
   resize();
 
-  function start() {
+  function start(options = {}) {
     if (running) return;
     running = true;
+    onBurst = options.onBurst || null;
     startTime = performance.now();
     document.body.classList.add("fiesta");
     if (reduceMotion) {
