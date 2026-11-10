@@ -17,6 +17,8 @@ plantilla/          código y diseño, igual para todas las personas
   tarjeta.js        abrir/cerrar, velas, confeti, vibración, canción
   fuegos.js         final "fuegos": cielo estrellado y fuegos artificiales
   og.html           plantilla de la imagen de vista previa (og.png, 1200x630)
+  favicon.svg       icono de la pestaña (pastel); el script le pone los colores del
+                    tema y genera apple-touch-icon.png (180x180) para Safari/iPhone
 personas/           un JSON por persona: textos, número de velas y URL
                     (solo ejemplo.json va a git; los tuyos quedan en tu equipo)
 preparar-sitio.ps1  construye sitio/<persona>/

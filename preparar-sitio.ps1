@@ -112,7 +112,35 @@ if ($html -match '\{\{[A-Z_]+\}\}') {
 # Un JSON válido también es JavaScript válido, así que se copia tal cual.
 [System.IO.File]::WriteAllText((Join-Path $salida "datos.js"), "window.TARJETA = $($json.Trim());`n", $utf8SinBom)
 
-# ---------- 4. Imagen de vista previa ----------
+# ---------- 3b. Icono de la pestaña (favicon.svg) ----------
+# Los colores se leen de tokens.css (una sola fuente de verdad): primero el tema por
+# defecto (:root { ... }) y encima los del tema elegido (:root[data-tema="..."] { ... }).
+$tokens = [System.IO.File]::ReadAllText((Join-Path $plantilla "tokens.css"), [System.Text.Encoding]::UTF8)
+function Get-Colores([string]$bloque) {
+    $mapa = @{}
+    foreach ($m in [regex]::Matches($bloque, '--([a-z0-9-]+):\s*(#[0-9a-fA-F]{3,8})')) {
+        $mapa[$m.Groups[1].Value] = $m.Groups[2].Value
+    }
+    return $mapa
+}
+$colores = Get-Colores ([regex]::Match($tokens, ':root\s*\{([^}]*)\}').Groups[1].Value)
+if ($tema -ne "coral") {
+    $bloqueTema = [regex]::Match($tokens, ':root\[data-tema="' + $tema + '"\]\s*\{([^}]*)\}').Groups[1].Value
+    $colorTema = Get-Colores $bloqueTema
+    foreach ($k in $colorTema.Keys) { $colores[$k] = $colorTema[$k] }
+}
+$icono = [System.IO.File]::ReadAllText((Join-Path $plantilla "favicon.svg"), [System.Text.Encoding]::UTF8)
+# {{ACCENT_DEEP}} -> --accent-deep, {{FROSTING_2}} -> --frosting-2, etc.
+$icono = [regex]::Replace($icono, '\{\{([A-Z0-9_]+)\}\}', {
+    param($m)
+    $token = $m.Groups[1].Value.ToLower().Replace("_", "-")
+    if (-not $colores.ContainsKey($token)) { throw "favicon.svg usa {{$($m.Groups[1].Value)}}, pero tokens.css no define --$token." }
+    $colores[$token]
+})
+$favicon = Join-Path $salida "favicon.svg"
+[System.IO.File]::WriteAllText($favicon, $icono, $utf8SinBom)
+
+# ---------- 4. Imágenes PNG: vista previa e icono para iPhone ----------
 $navegadores = @(
     "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
     "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe",
@@ -124,22 +152,38 @@ if (-not $navegador) {
     throw "No encontré Chrome ni Edge: hacen falta para generar og.png (la imagen de la vista previa)."
 }
 
+# Fotografía un archivo con el navegador sin ventana y comprueba que salió la imagen.
+function Capturar([string]$archivo, [string]$png, [int]$ancho, [int]$alto, [string]$extra) {
+    $perfil = Join-Path $env:TEMP "og-chrome-profile" # perfil aparte: no toca tu navegador
+    # Chrome escribe avisos inofensivos en stderr; con "Stop", PowerShell 5.1 los convierte en
+    # error fatal. Se relaja solo aquí: el éxito real se comprueba abajo (que exista el PNG).
+    $ErrorActionPreference = "Continue"
+    $argumentos = @("--headless=new", "--disable-gpu", "--hide-scrollbars", "--user-data-dir=$perfil",
+        "--window-size=$ancho,$alto", "--virtual-time-budget=5000", "--screenshot=$png")
+    if ($extra) { $argumentos += $extra }
+    & $navegador @argumentos $archivo 2>$null | Out-Null
+    $ErrorActionPreference = "Stop"
+    if (-not (Test-Path $png) -or (Get-Item $png).Length -eq 0) {
+        throw "No se generó $png a partir de $archivo."
+    }
+}
+
 # og.html se copia junto a datos.js y pastel.js para que sus rutas relativas funcionen.
 $ogTemporal = Join-Path $salida "og.html"
 $png = Join-Path $salida "og.png"
 Copy-Item (Join-Path $plantilla "og.html") $ogTemporal
-$perfil = Join-Path $env:TEMP "og-chrome-profile" # perfil aparte: no toca tu navegador
-# Chrome escribe avisos inofensivos en stderr; con "Stop", PowerShell 5.1 los convierte en
-# error fatal. Se relaja solo aquí: el éxito real se comprueba abajo (que exista og.png).
-$ErrorActionPreference = "Continue"
-& $navegador --headless=new --disable-gpu --hide-scrollbars --user-data-dir="$perfil" `
-    --window-size=1200,630 --virtual-time-budget=5000 --screenshot="$png" $ogTemporal 2>$null | Out-Null
-$ErrorActionPreference = "Stop"
+Capturar $ogTemporal $png 1200 630
 Remove-Item $ogTemporal
 
-if (-not (Test-Path $png) -or (Get-Item $png).Length -eq 0) {
-    throw "No se generó og.png. Abre plantilla\og.html en el navegador para ver si tiene errores."
-}
+# Safari e iPhone (pantalla de inicio) usan un PNG de 180x180 en vez del SVG; fondo transparente.
+# Se fotografía una mini página con el icono a 180x180: abrir el SVG solo no sirve, porque
+# Chrome sin ventana tiene un ancho mínimo y lo dibuja más grande que la captura.
+$iconoTemporal = Join-Path $salida "icono.html"
+[System.IO.File]::WriteAllText($iconoTemporal,
+    '<!doctype html><body style="margin:0"><img src="favicon.svg" width="180" height="180" style="display:block"></body>',
+    $utf8SinBom)
+Capturar $iconoTemporal (Join-Path $salida "apple-touch-icon.png") 180 180 "--default-background-color=00000000"
+Remove-Item $iconoTemporal
 
 Write-Output "Listo: $salida"
 Write-Output "Sube esa carpeta a Cloudflare Pages. Revisa la imagen: $png"
