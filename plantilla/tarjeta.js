@@ -25,15 +25,25 @@ for (const parrafo of TARJETA.mensaje) {
   $("body").appendChild(p);
 }
 
-// Velas
+// Velas: con "numero" (ej. 18) una vela por cifra; si no, "velas" velas normales.
 const candlesEl = $("candles");
+const cakeEl = $("cake");
+const cifras = TARJETA.numero ? String(TARJETA.numero).split("") : null;
+candlesEl.classList.toggle("numbers", !!cifras);
 function buildCandles() {
   candlesEl.textContent = "";
-  for (let i = 0; i < TARJETA.velas; i++) {
+  const total = cifras ? cifras.length : TARJETA.velas;
+  for (let i = 0; i < total; i++) {
     const c = document.createElement("button");
     c.type = "button";
     c.className = "candle";
-    c.setAttribute("aria-label", "Apagar vela " + (i + 1));
+    if (cifras) {
+      c.classList.add("digit");
+      c.textContent = cifras[i];
+      c.setAttribute("aria-label", "Apagar la vela del " + cifras[i]);
+    } else {
+      c.setAttribute("aria-label", "Apagar vela " + (i + 1));
+    }
     const smoke = document.createElement("span");
     smoke.className = "smoke";
     c.appendChild(smoke);
@@ -43,6 +53,8 @@ function buildCandles() {
   wish.textContent = "Toca cada vela para apagarla.";
   wish.classList.remove("done");
   blowAllBtn.disabled = false;
+  cakeEl.classList.add("lit"); // velas encendidas: su luz se refleja en el glaseado
+  cakeEl.classList.remove("celebrate");
 }
 
 function blowOut(candle) {
@@ -55,6 +67,8 @@ function blowOut(candle) {
     wish.classList.add("done");
     launchConfetti();
     vibrate();
+    cakeEl.classList.remove("lit");
+    cakeEl.classList.add("celebrate"); // saltito del pastel (estilos.css)
     actions.hidden = true; // ya no quedan velas: "Soplar todas" desaparece
   } else {
     wish.textContent = left === 1 ? "Queda 1 vela." : "Quedan " + left + " velas.";
@@ -168,7 +182,7 @@ function playSong() {
 const canvas = $("confetti");
 const ctx = canvas.getContext("2d");
 const css = getComputedStyle(document.documentElement);
-const colors = ["--coral", "--marigold", "--mint", "--paper"].map((v) => css.getPropertyValue(v).trim());
+const colors = ["--accent", "--marigold", "--mint", "--paper"].map((v) => css.getPropertyValue(v).trim());
 let pieces = [];
 let rafId = null;
 

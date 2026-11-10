@@ -12,7 +12,7 @@ plantilla/          código y diseño, igual para todas las personas
   index.html        estructura de la tarjeta (los {{...}} los rellena el script)
   tokens.css        colores y tipografías (cambiar el diseño empieza aquí)
   estilos.css       diseño de la tarjeta
-  pastel.css        colores del pastel
+  pastel.css        colores y animaciones del pastel (reflejo, luz de las velas)
   pastel.js         dibujo del pastel (lo comparten la tarjeta y la vista previa)
   tarjeta.js        abrir/cerrar, velas, confeti, vibración, canción
   og.html           plantilla de la imagen de vista previa (og.png, 1200x630)
@@ -41,6 +41,20 @@ sitio/              salida generada (no se guarda en git)
 
 El script valida el JSON y explica qué campo está mal antes de generar nada.
 
+### Campos del JSON
+
+| Campo | Qué es |
+|---|---|
+| `nombre` | Aparece en la portada ("para Ana") y en la vista previa |
+| `saludo` | Título del mensaje interior |
+| `mensaje` | Lista de párrafos (admite emojis) |
+| `firma` | Firma al final |
+| `tema` | Opcional: `coral` (por defecto) o `azul`. Los temas viven en `plantilla/tokens.css` |
+| `velas` | De 1 a 9 velas normales |
+| `numero` | Opcional: velas con forma de número (ej. `18`, hasta 99). Si está, reemplaza a `velas` |
+| `url` | Dirección donde se publicará, sin `/` final (la necesita la vista previa) |
+| `previa.titulo` / `previa.descripcion` | Textos que se ven al compartir el enlace |
+
 ## Probar en local
 
 Abrir `sitio/<persona>/index.html` con doble clic funciona en la mayoría de navegadores,
@@ -50,7 +64,8 @@ pero lo más fiel a Cloudflare es servir la carpeta:
 python -m http.server 8765 --directory sitio/ana
 ```
 
-y abrir http://localhost:8765.
+y abrir http://localhost:8765. Si cambiaste algo y no se ve, recarga sin caché
+(Ctrl+Shift+R): el navegador puede seguir usando los CSS/JS anteriores.
 
 ## Cosas a saber
 

@@ -48,9 +48,20 @@ foreach ($campo in "nombre", "saludo", "firma", "url") {
 if (-not $datos.mensaje -or @($datos.mensaje).Count -eq 0 -or (@($datos.mensaje) | Where-Object { -not ($_ -is [string]) -or [string]::IsNullOrWhiteSpace($_) })) {
     $errores += "'mensaje' debe ser una lista con al menos un párrafo de texto."
 }
-if (-not ($datos.velas -is [int]) -or $datos.velas -lt 1 -or $datos.velas -gt 9) {
+if ($null -ne $datos.numero) {
+    # Velas con forma de número (ej. 18): caben máximo dos cifras sobre el pastel.
+    if (-not ($datos.numero -is [int]) -or $datos.numero -lt 1 -or $datos.numero -gt 99) {
+        $errores += "'numero' debe ser un número entero entre 1 y 99."
+    }
+} elseif (-not ($datos.velas -is [int]) -or $datos.velas -lt 1 -or $datos.velas -gt 9) {
     # Más de 9 no caben sobre el piso de arriba del pastel.
-    $errores += "'velas' debe ser un número entero entre 1 y 9."
+    $errores += "'velas' debe ser un número entero entre 1 y 9 (o usa 'numero' para velas con forma de número)."
+}
+# Temas definidos en plantilla\tokens.css; uno nuevo hay que añadirlo en los dos sitios.
+$temas = "coral", "azul"
+$tema = if ($null -ne $datos.tema) { $datos.tema } else { "coral" }
+if ($tema -notin $temas) {
+    $errores += "'tema' debe ser uno de: $($temas -join ', ')."
 }
 if ($datos.url -is [string] -and ($datos.url -notmatch '^https://[^/\s]+$')) {
     $errores += "'url' debe ser solo el dominio con https:// y sin / final (ej. https://ana.tudominio.com)."
@@ -77,11 +88,13 @@ foreach ($archivo in "tokens.css", "pastel.css", "estilos.css", "pastel.js", "ta
 # (HtmlEncode de .NET también convierte tildes y ñ en &#241;: es válido, pero
 # las tildes tal cual son más seguras para los lectores de vista previa.)
 $enc = { param($texto) $texto.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace('"', "&quot;") }
+$velasAlt = if ($null -ne $datos.numero) { "velas con forma del número $($datos.numero)" } else { "$($datos.velas) velas encendidas" }
 $reemplazos = @{
+    "{{TEMA}}"        = $tema # ya validado contra $temas
     "{{TITULO}}"      = & $enc $datos.previa.titulo
     "{{DESCRIPCION}}" = & $enc $datos.previa.descripcion
     "{{URL}}"         = & $enc $datos.url
-    "{{IMAGEN_ALT}}"  = & $enc "Pastel con $($datos.velas) velas encendidas y el texto ¡Feliz cumpleaños! para $($datos.nombre)"
+    "{{IMAGEN_ALT}}"  = & $enc "Pastel con $velasAlt y el texto ¡Feliz cumpleaños! para $($datos.nombre)"
 }
 $html = [System.IO.File]::ReadAllText((Join-Path $plantilla "index.html"), [System.Text.Encoding]::UTF8)
 foreach ($clave in $reemplazos.Keys) { $html = $html.Replace($clave, $reemplazos[$clave]) }

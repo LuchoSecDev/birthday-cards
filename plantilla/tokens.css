@@ -1,21 +1,44 @@
 /* Colores y tipografías de todas las tarjetas. Lo usan la tarjeta (index.html)
    y la imagen de vista previa (og.html): cambiar un color aquí cambia ambas.
-   Diseño de un solo tema a propósito: siempre "de noche", para que las velas brillen. */
+   Sin modo claro a propósito: siempre "de noche", para que las velas brillen.
+
+   Cada persona elige un tema con "tema" en su JSON; el script lo pone en
+   <html data-tema="...">. Un tema nuevo = un bloque :root[data-tema="..."] más abajo
+   y añadirlo a $temas en preparar-sitio.ps1. */
+
+/* Tema "coral" (por defecto) */
 :root {
-  --night: #12343b;
-  --night-2: #1d4c55;
-  --paper: #fff4f1;
-  --ink: #2b2030;
-  --ink-soft: #6a5866;
-  --coral: #ef6a5b;
-  --coral-deep: #c9493c;
-  --marigold: #f6b42c;
-  --mint: #7fd3c3;
-  --flame: #ffd36b;
+  --night: #12343b;       /* fondo de la página */
+  --night-2: #1d4c55;     /* brillo del fondo */
+  --paper: #fff4f1;       /* papel del interior, glaseado */
+  --ink: #2b2030;         /* texto */
+  --ink-soft: #6a5866;    /* texto secundario */
+  --accent: #ef6a5b;      /* portada, piso de arriba del pastel */
+  --accent-deep: #c9493c; /* títulos, piso de abajo, sombras del título */
+  --marigold: #f6b42c;    /* sello "Abrir", botón, chispas */
+  --mint: #7fd3c3;        /* rayas de las velas, puntos */
+  --flame: #ffd36b;       /* llamas */
+  --frosting-2: #ffc9c0;  /* glaseado del piso de arriba */
+  --plate: #d9cfd6;       /* plato */
 
   --font-display: "Shrikhand", "Georgia", serif;
   --font-body: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-hand: "Gochi Hand", "Comic Sans MS", cursive;
 
   color-scheme: dark;
+}
+
+/* Tema "azul": noche azul marino, portada cobalto y dorado como contraste */
+:root[data-tema="azul"] {
+  --night: #0d1733;
+  --night-2: #1c2f63;
+  --paper: #f4f7ff;
+  --ink: #1a2140;
+  --ink-soft: #5a6385;
+  --accent: #2f6fdb;
+  --accent-deep: #1d4aa3;
+  --marigold: #f6b42c;
+  --mint: #9fd3ff;
+  --frosting-2: #cfe0ff;
+  --plate: #cfd5e6;
 }

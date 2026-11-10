@@ -15,8 +15,8 @@
     background:
       radial-gradient(circle, var(--marigold) 3px, transparent 3.5px) 0 0 / 44px 44px,
       radial-gradient(circle, var(--mint) 2.5px, transparent 3px) 22px 22px / 44px 44px,
-      var(--coral);
-    box-shadow: inset 0 0 0 22px var(--coral), inset 0 0 0 26px var(--paper);
+      var(--accent);
+    box-shadow: inset 0 0 0 22px var(--accent), inset 0 0 0 26px var(--paper);
     display: grid;
     grid-template-columns: minmax(0, 1fr) 430px;
     align-items: center;
@@ -26,7 +26,7 @@
     font-family: var(--font-body);
   }
   .text {
-    background: var(--coral);
+    background: var(--accent);
     padding: 34px 36px;
     border-radius: 8px;
     color: var(--paper);
@@ -37,7 +37,7 @@
     font-size: 80px;
     line-height: 1.02;
     margin: 0;
-    text-shadow: 5px 5px 0 var(--coral-deep);
+    text-shadow: 5px 5px 0 var(--accent-deep);
   }
   .to {
     font-family: var(--font-hand);
@@ -69,6 +69,17 @@
   .cake .wick   { fill: var(--ink); }
   .cake .flame  { fill: var(--marigold); }
   .cake .core   { fill: #fff; }
+  /* La imagen es una foto fija: sin animaciones ni reflejo a medio camino */
+  .cake *, .cake { animation: none !important; transition: none !important; }
+  .cake .sheen { display: none; }
+  .cake .digit {
+    font-family: var(--font-display);
+    font-size: 78px;
+    fill: url(#stripes);
+    stroke: var(--accent-deep);
+    stroke-width: 2;
+    paint-order: stroke;
+  }
 </style>
 </head>
 <body>
@@ -86,10 +97,13 @@
 <script src="pastel.js"></script>
 <script>
   const datos = window.TARJETA;
+  // El tema va primero: los colores que se leen más abajo dependen de él.
+  document.documentElement.dataset.tema = datos.tema || "coral";
   document.getElementById("to").textContent = "para " + datos.nombre;
 
   const svg = document.getElementById("cake");
   drawCake(svg);
+  svg.classList.add("lit"); // con la luz de las velas sobre el glaseado
 
   const NS = "http://www.w3.org/2000/svg";
   const css = getComputedStyle(document.documentElement);
@@ -109,16 +123,39 @@
   el("rect", { width: 11, height: 11, fill: color("--paper") }, stripes);
   el("rect", { width: 6, height: 11, fill: color("--mint") }, stripes);
 
-  // Mismo número de velas que la tarjeta, repartidas sobre el piso de arriba (ancho 152)
-  const n = datos.velas;
-  const gap = Math.min(24, 130 / Math.max(n - 1, 1));
-  for (let i = 0; i < n; i++) {
-    const x = 130 + (i - (n - 1) / 2) * gap;
-    el("rect", { x: x - 5, y: -36, width: 10, height: 38, rx: 2, class: "wax" });
-    el("rect", { x: x - 1, y: -42, width: 2, height: 6, class: "wick" });
-    el("circle", { cx: x, cy: -52, r: 16, fill: "url(#glow)" });
-    el("path", { d: `M${x} -64 C ${x + 7} -54, ${x + 6} -44, ${x} -43 C ${x - 6} -44, ${x - 7} -54, ${x} -64 Z`, class: "flame" });
-    el("ellipse", { cx: x, cy: -49, rx: 2.5, ry: 4, class: "core" });
+  // Llama con mecha cuya punta de la mecha queda en (x, top)
+  function flame(x, top) {
+    el("rect", { x: x - 1, y: top - 6, width: 2, height: 6, class: "wick" });
+    el("circle", { cx: x, cy: top - 16, r: 16, fill: "url(#glow)" });
+    el("path", { d: `M${x} ${top - 28} C ${x + 7} ${top - 18}, ${x + 6} ${top - 8}, ${x} ${top - 7} C ${x - 6} ${top - 8}, ${x - 7} ${top - 18}, ${x} ${top - 28} Z`, class: "flame" });
+    el("ellipse", { cx: x, cy: top - 13, rx: 2.5, ry: 4, class: "core" });
+  }
+
+  if (datos.numero) {
+    // Velas con forma de número, como en la tarjeta: una cifra por vela.
+    svg.setAttribute("viewBox", "0 -100 260 250"); // más alto: las cifras miden más que las velas
+    const cifras = String(datos.numero).split("");
+    const paso = 46;
+    const base = 16;             // línea base de las cifras: un poco hundidas en la cara de arriba (y = 12)
+    const alto = 0.68 * 78;      // alto real de una cifra en Shrikhand (78 = font-size en .digit)
+    // (getBBox no sirve aquí: mide la caja de la fuente, mucho más alta que el dibujo de la cifra)
+    cifras.forEach((cifra, i) => {
+      const x = 130 + (i - (cifras.length - 1) / 2) * paso;
+      const texto = el("text", { x, y: base, class: "digit", "text-anchor": "middle" });
+      texto.textContent = cifra;
+      // +4 en x: Shrikhand es inclinada, la parte de arriba de la cifra queda a la derecha
+      flame(x + 4, base - alto + 3);
+    });
+  } else {
+    // Mismo número de velas que la tarjeta, repartidas sobre el piso de arriba (ancho 152)
+    const n = datos.velas;
+    const gap = Math.min(24, 130 / Math.max(n - 1, 1));
+    for (let i = 0; i < n; i++) {
+      const x = 130 + (i - (n - 1) / 2) * gap;
+      // base de la vela en el centro de la cara de arriba del pastel (y = 12)
+      el("rect", { x: x - 5, y: -24, width: 10, height: 38, rx: 2, class: "wax" });
+      flame(x, -24);
+    }
   }
 </script>
 </body>

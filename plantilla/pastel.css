@@ -1,12 +1,34 @@
-/* Colores del pastel que dibuja pastel.js (lo comparten la tarjeta y la vista previa). */
-.cake .sponge-top    { fill: var(--coral); }
-.cake .sponge-bottom { fill: var(--coral-deep); }
+/* Colores y animaciones del pastel que dibuja pastel.js
+   (lo comparten la tarjeta y la vista previa; og.html apaga las animaciones). */
+.cake .sponge-top    { fill: var(--accent); }
+.cake .sponge-bottom { fill: var(--accent-deep); }
 .cake .frosting      { fill: var(--paper); }
-.cake .frosting-pink { fill: #ffc9c0; }
-.cake .shade         { fill: var(--ink); opacity: 0.14; }
-.cake .shine         { fill: var(--paper); opacity: 0.16; }
-.cake .plate         { fill: #d9cfd6; }
+.cake .frosting-pink { fill: var(--frosting-2); }
+.cake .shade         { fill: var(--ink); opacity: 0.16; }
+.cake .gloss         { fill: #fff; opacity: 0.6; }
+.cake .berry         { fill: var(--accent-deep); }
+.cake .plate         { fill: var(--plate); }
 .cake .plate-rim     { fill: var(--paper); }
 .cake .s1 { fill: var(--marigold); }
 .cake .s2 { fill: var(--mint); }
 .cake .s3 { fill: var(--paper); }
+
+/* Reflejo de luz que recorre cada piso cada 6 s (--d = ancho a recorrer, lo pone pastel.js) */
+.cake .sheen { animation: sheen 6s ease-in-out infinite; }
+@keyframes sheen {
+  0%        { transform: translateX(0); }
+  22%, 100% { transform: translateX(var(--d)); }
+}
+
+/* Luz de las velas sobre el glaseado: titila mientras haya velas encendidas */
+.cake .candlelight { opacity: 0; transition: opacity 0.6s; }
+.cake.lit .candlelight { opacity: 1; animation: candlelight 1.4s ease-in-out infinite alternate; }
+@keyframes candlelight {
+  from { opacity: 0.65; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cake .sheen { animation: none; visibility: hidden; }
+  .cake.lit .candlelight { animation: none; }
+}
