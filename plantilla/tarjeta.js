@@ -65,7 +65,9 @@ function blowOut(candle) {
   if (left === 0) {
     wish.textContent = "¡Que se cumpla tu deseo!";
     wish.classList.add("done");
-    launchConfetti();
+    // Final elegido en el JSON: "fuegos" (cielo estrellado y fuegos) o confeti (por defecto)
+    if (TARJETA.final === "fuegos") Fuegos.start();
+    else launchConfetti();
     vibrate();
     cakeEl.classList.remove("lit");
     cakeEl.classList.add("celebrate"); // saltito del pastel (estilos.css)
@@ -104,6 +106,7 @@ function closeCard() {
   card.classList.remove("open");
   actions.hidden = true;
   stopSong();
+  Fuegos.stop(); // si estaba la noche de fuegos, el fondo vuelve a la normalidad
   cover.focus({ preventScroll: true });
   // Reencender las velas cuando la portada ya tapó el interior, no a la vista
   resetTimer = setTimeout(buildCandles, TURN_MS);

@@ -63,6 +63,11 @@ $tema = if ($null -ne $datos.tema) { $datos.tema } else { "coral" }
 if ($tema -notin $temas) {
     $errores += "'tema' debe ser uno de: $($temas -join ', ')."
 }
+# Qué pasa al apagar la última vela (lo interpreta plantilla\tarjeta.js).
+$finales = "confeti", "fuegos"
+if ($null -ne $datos.final -and $datos.final -notin $finales) {
+    $errores += "'final' debe ser uno de: $($finales -join ', ')."
+}
 if ($datos.url -is [string] -and ($datos.url -notmatch '^https://[^/\s]+$')) {
     $errores += "'url' debe ser solo el dominio con https:// y sin / final (ej. https://ana.tudominio.com)."
 }
@@ -80,7 +85,7 @@ if ($errores.Count -gt 0) {
 if (Test-Path $salida) { Remove-Item -Recurse -Force $salida }
 New-Item -ItemType Directory -Force $salida | Out-Null
 
-foreach ($archivo in "tokens.css", "pastel.css", "estilos.css", "pastel.js", "tarjeta.js") {
+foreach ($archivo in "tokens.css", "pastel.css", "estilos.css", "pastel.js", "fuegos.js", "tarjeta.js") {
     Copy-Item (Join-Path $plantilla $archivo) $salida
 }
 

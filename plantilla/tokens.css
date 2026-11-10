@@ -20,6 +20,8 @@
   --flame: #ffd36b;       /* llamas */
   --frosting-2: #ffc9c0;  /* glaseado del piso de arriba */
   --plate: #d9cfd6;       /* plato */
+  --sky-deep: #02040c;    /* cielo estrellado del final "fuegos" (igual en todos los temas) */
+  --sky-glow: #101a3e;    /* resplandor del horizonte en ese cielo */
 
   --font-display: "Shrikhand", "Georgia", serif;
   --font-body: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;

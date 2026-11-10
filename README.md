@@ -15,6 +15,7 @@ plantilla/          código y diseño, igual para todas las personas
   pastel.css        colores y animaciones del pastel (reflejo, luz de las velas)
   pastel.js         dibujo del pastel (lo comparten la tarjeta y la vista previa)
   tarjeta.js        abrir/cerrar, velas, confeti, vibración, canción
+  fuegos.js         final "fuegos": cielo estrellado y fuegos artificiales
   og.html           plantilla de la imagen de vista previa (og.png, 1200x630)
 personas/           un JSON por persona: textos, número de velas y URL
                     (solo ejemplo.json va a git; los tuyos quedan en tu equipo)
@@ -52,6 +53,7 @@ El script valida el JSON y explica qué campo está mal antes de generar nada.
 | `tema` | Opcional: `coral` (por defecto) o `azul`. Los temas viven en `plantilla/tokens.css` |
 | `velas` | De 1 a 9 velas normales |
 | `numero` | Opcional: velas con forma de número (ej. `18`, hasta 99). Si está, reemplaza a `velas` |
+| `final` | Opcional: qué pasa al apagar la última vela. `confeti` (por defecto) o `fuegos` (el fondo se oscurece, aparece un cielo estrellado y salen fuegos artificiales) |
 | `url` | Dirección donde se publicará, sin `/` final (la necesita la vista previa) |
 | `previa.titulo` / `previa.descripcion` | Textos que se ven al compartir el enlace |
 

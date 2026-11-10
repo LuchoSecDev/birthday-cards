@@ -26,6 +26,9 @@
 </head>
 <body>
 <canvas id="confetti" aria-hidden="true"></canvas>
+<!-- Final "fuegos" (fuegos.js): el cielo va detrás de la tarjeta, los fuegos delante -->
+<div id="nightsky" aria-hidden="true"><canvas id="stars"></canvas></div>
+<canvas id="fireworks" aria-hidden="true"></canvas>
 
 <main class="stage">
   <div class="card" id="card">
@@ -67,10 +70,11 @@
   </div>
 </main>
 
-<!-- Orden importante: datos.js define window.TARJETA y pastel.js define drawCake(),
-     que tarjeta.js usa. -->
+<!-- Orden importante: datos.js define window.TARJETA, pastel.js define drawCake() y
+     fuegos.js define Fuegos; tarjeta.js usa los tres. -->
 <script src="datos.js"></script>
 <script src="pastel.js"></script>
+<script src="fuegos.js"></script>
 <script src="tarjeta.js"></script>
 </body>
 </html>
